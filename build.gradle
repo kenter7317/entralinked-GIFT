@@ -56,37 +56,40 @@ compileJava {
     options.encoding = "UTF-8"
 }
 
-task dist(type: Jar) {
+tasks.register('dist', Jar) {
     manifest {
         attributes 'Main-Class': project.ext.mainClass,
-                   'Launcher-Agent-Class': project.ext.agentClass,
-                   'Multi-Release': 'true'
+                'Launcher-Agent-Class': project.ext.agentClass,
+                'Multi-Release': 'true'
     }
-    
+
     from {
         (configurations.runtimeClasspath - configurations.signedImplementation).collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
-    
+
     from {
         configurations.signedImplementation
     }
-    
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn configurations.runtimeClasspath, test
     with jar
 }
 
-task run(type: JavaExec) {
+tasks.register('run', JavaExec) {
     mainClass = project.ext.mainClass
     workingDir = project.ext.workingDirectory
     classpath = sourceSets.main.runtimeClasspath
-    
+
+    args 'disablegui'
+
     doFirst {
         mkdir workingDir
     }
 }
-    
+
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
+
